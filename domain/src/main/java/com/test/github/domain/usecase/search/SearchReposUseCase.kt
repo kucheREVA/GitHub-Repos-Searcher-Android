@@ -44,15 +44,6 @@ class SearchReposUseCase(
                 )
             }.await()
 
-//            val page = if (firstHalfResult && secondHalfResult) {
-//                params.page + 2
-//            } else if (firstHalfResult && !secondHalfResult) {
-//                params.page + 1
-//            } else {
-//                params.page
-//            }
-//
-//            Result.Success(SearchModel(page))
             if (validateLimit(firstHalfResult, secondHalfResult)) {
                 emit(Result.Failure(Error("You have reached the limit. Try again later.")))
             }

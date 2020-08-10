@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -97,7 +98,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
                     is Result.Loading -> addStubsToAdapter(it.loadingData as ReposModel)
                     is Result.State.LOADING -> progress.show()
                     is Result.State.LOADED -> progress.hide()
-                    is Result.State.EMPTY -> showStub()
+                    is Result.State.EMPTY -> showStub { noReposFound() }
                 }
             })
         }
@@ -133,10 +134,20 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         adapter.setData(result.repos)
     }
 
-    private fun showStub() {
+    private fun showStub(action: () -> Unit? = {}) {
         stub.visibility = View.VISIBLE
         lstRepos.visibility = View.GONE
         adapter.clearData()
+        action()
+    }
+
+    private fun noReposFound() {
+        progress.hide()
+        Toast.makeText(
+            requireContext(),
+            R.string.search_screen_no_repos_found_toast,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun openLink(item: RepoItem) {

@@ -144,7 +144,7 @@ val networkModule = module {
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS)
         .writeTimeout(15, TimeUnit.SECONDS)
-        .addInterceptor(loggerInterceptor)
+//        .addInterceptor(loggerInterceptor)
         .build()
 
     fun provideRetrofit(baseUrl: String, client: OkHttpClient): Retrofit =

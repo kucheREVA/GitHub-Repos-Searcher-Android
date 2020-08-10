@@ -14,5 +14,6 @@
     <string name="search_hint">Repositories here...</string>
     <string name="app_label">GitHub Search Repos</string>
     <string name="search_screen_hint_content">Search repositories here:</string>
+    <string name="search_screen_no_repos_found_toast">No repos found, try another search name</string>
 
 </resources>

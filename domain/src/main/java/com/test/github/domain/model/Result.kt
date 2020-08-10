@@ -11,6 +11,6 @@ sealed class Result<out T, out R> {
         object EMPTY : State()
         object NO_REPOS : State()
         object UNAUTHORIZED : State()
-        object LIMIT_REACHED : State()
+        object NO_REPOS_FOUND : State()
     }
 }
