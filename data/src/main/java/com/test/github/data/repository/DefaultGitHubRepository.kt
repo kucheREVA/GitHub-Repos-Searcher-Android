@@ -68,7 +68,7 @@ class DefaultGitHubRepository(
         val response = gitHubApi.searchRepos(
             token,
             searchQuery.page,
-            searchQuery.query.replace(" ", "+"),
+            prepareQuery(searchQuery.query),
             searchQuery.sort,
             searchQuery.order
         )
@@ -79,6 +79,10 @@ class DefaultGitHubRepository(
         } else {
             -1
         }
+    }
+
+    private fun prepareQuery(query: String): String {
+        return "${query.replace(" ", "+")}+in:name"
     }
 
     private suspend fun saveToMemory(ids: List<UUID>, data: SearchData?): List<Long> {

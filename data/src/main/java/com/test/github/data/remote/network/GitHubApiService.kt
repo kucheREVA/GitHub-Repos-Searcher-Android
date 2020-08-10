@@ -12,7 +12,7 @@ interface GitHubApiService {
     suspend fun searchRepos(
         @Header("Authorization") oauthToken: String,
         @Query("page") page: Int,
-        @Query("q") query: String,
+        @Query("q", encoded = true) query: String,
         @Query("sort") sort: String,
         @Query("order") order: String,
         @Query("per_page") size: Int = 15
