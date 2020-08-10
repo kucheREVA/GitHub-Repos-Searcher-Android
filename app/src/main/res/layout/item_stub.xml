@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/crdLayout"
+    android:layout_width="match_parent"
+    android:layout_height="220dp"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="16dp"
+    app:cardCornerRadius="12dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgRepoLogo"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop"
+            android:background="@color/colorPlaceholder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtRepoName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@id/txtRepoStars"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imgRepoLogo"
+            tools:text="GitHub Repos" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtRepoStars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:textSize="16sp"
+            android:minWidth="64dp"
+            android:gravity="end"
+            android:visibility="invisible"
+            app:drawableLeftCompat="@drawable/ic_star_rate"
+            app:layout_constraintBaseline_toBaselineOf="@+id/txtRepoName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/txtRepoName"
+            tools:text="1000" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtRepoDescription"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:paddingHorizontal="8dp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtRepoName"
+            tools:text="Some text her"/>
+
+        <View
+            android:id="@+id/descriptionPlaceholder1"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/rounded_placeholder"
+            app:layout_constraintEnd_toEndOf="@id/txtRepoDescription"
+            app:layout_constraintTop_toTopOf="@id/txtRepoDescription"
+            app:layout_constraintStart_toStartOf="@id/txtRepoDescription"/>
+
+        <View
+            android:id="@+id/descriptionPlaceholder2"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:background="@drawable/rounded_placeholder"
+            android:layout_marginTop="2dp"
+            app:layout_constraintEnd_toEndOf="@id/descriptionPlaceholder1"
+            app:layout_constraintTop_toBottomOf="@id/descriptionPlaceholder1"
+            app:layout_constraintStart_toStartOf="@id/descriptionPlaceholder1"/>
+
+        <View
+            android:id="@+id/namePlaceholder1"
+            android:layout_width="0dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="100dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_placeholder"
+            app:layout_constraintTop_toTopOf="@id/txtRepoName"
+            app:layout_constraintBottom_toBottomOf="@id/txtRepoName"
+            app:layout_constraintStart_toStartOf="@id/txtRepoName"
+            app:layout_constraintEnd_toEndOf="@id/txtRepoName"/>
+
+        <View
+            android:id="@+id/starsPlaceholder1"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="26dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/rounded_placeholder"
+            app:layout_constraintTop_toTopOf="@id/txtRepoStars"
+            app:layout_constraintBottom_toBottomOf="@id/txtRepoStars"
+            app:layout_constraintStart_toStartOf="@id/txtRepoStars"
+            app:layout_constraintEnd_toEndOf="@id/txtRepoStars"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

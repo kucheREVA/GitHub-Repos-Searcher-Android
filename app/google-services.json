@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "384216324142",
+    "firebase_url": "https://github-repos-searcher-app.firebaseio.com",
+    "project_id": "github-repos-searcher-app",
+    "storage_bucket": "github-repos-searcher-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384216324142:android:96b7c27c46f15c0b4927bf",
+        "android_client_info": {
+          "package_name": "com.test.github.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "384216324142-4agbn6j6vvof0r30cbq59vhv7obkdthd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.test.github.app",
+            "certificate_hash": "af53ed8af46da12fc6d1914da6e9c8b2c7c27cab"
+          }
+        },
+        {
+          "client_id": "384216324142-lve5qgabe36959kdrd1vp39u6nnqhr11.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV07kp-rbPAl5mRxmstUwllezcC-bqZMA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "384216324142-lve5qgabe36959kdrd1vp39u6nnqhr11.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/mainFragment"
+        android:enabled="true"
+        android:icon="@drawable/ic_search"
+        android:title="@string/nav_search"/>
+
+    <item android:id="@+id/historyFragment"
+        android:enabled="true"
+        android:icon="@drawable/ic_history"
+        android:title="@string/nav_history"/>
+
+</menu>
