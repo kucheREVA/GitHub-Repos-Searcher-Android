@@ -21,7 +21,7 @@ class DefaultAccountRepository(
         private const val ACCOUNT_TOKEN_SECRET = "com.test.github.app.token.secret"
     }
 
-    override suspend fun getAuthToken(): String? {
+    override fun getAuthToken(): String? {
         return getAccount()?.let {
             accountManager.getUserData(it, ACCOUNT_AUTH_TOKEN)
         }

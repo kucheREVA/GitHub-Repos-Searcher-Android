@@ -11,9 +11,11 @@ sealed class Result<out T, out R> {
         object EMPTY : State()
         object NO_REPOS : State()
         object UNAUTHORIZED : State()
-        object NO_REPOS_FOUND : State()
+
         object COOL_DOWN_RELEASED : State()
         object LIMIT_REACHED : State()
         object COOL_DOWN_START : State()
     }
+
+    var hasBeenHandled = false
 }

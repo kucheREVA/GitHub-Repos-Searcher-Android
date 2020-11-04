@@ -20,54 +20,35 @@ class DefaultGitHubRepository(
     private val database: AppDatabase
 ) : GitHubRepository {
 
-    override suspend fun getHistory(): List<RepoItem> {
-        return database.getReposDao().getHistory().map {
-            RepoItem(
-                itemId = UUID(it.serverId, it.serverId),
-                name = it.name,
-                description = it.description,
-                starsCount = it.starsCount,
-                repoUrl = it.repoUrl,
-                ownerName = it.ownerName,
-                ownerAvatarUrl = it.ownerAvatarUrl,
-                serverId = it.serverId,
-                viewedTimestamp = it.viewedTimestamp
-            )
-        }
+    override fun getHistory(): Flow<List<RepoItem>> {
+        return database.getReposDao().getHistory()
+            .map { it.mapToRepoItem() }
+    }
+
+    override fun getRepos(): Flow<List<RepoItem>> {
+        return database.getReposDao().getRepos()
+            .flowOn(Dispatchers.IO)
+            .map { it.mapToItem() }
     }
 
     override suspend fun updateViewedTimestamp(item: RepoItem) {
-        return database.getReposDao().updateHistory(
-            HistoryEntity(
-                serverId = item.serverId,
-                name = item.name,
-                description = item.description,
-                starsCount = item.starsCount,
-                repoUrl = item.repoUrl,
-                ownerName = item.ownerName,
-                ownerAvatarUrl = item.ownerAvatarUrl,
-                viewedTimestamp = item.viewedTimestamp
-            )
-        )
+        return database.getReposDao().updateHistory(item.mapToHistoryEntity())
     }
 
     override suspend fun clearRepos(): Boolean {
         return database.getReposDao().clearRepos() > 0
     }
 
-    override fun getRepos(): Flow<List<RepoItem>> {
-        return database.getReposDao().getRepos()
-            .flowOn(Dispatchers.IO)
-            .map { mapEntityToItem(it) }
+    override suspend fun saveRepos(ids: List<UUID>, items: List<RepoData>) {
+        val entities = items.mapToEntity(ids)
+        database.getReposDao().insertRepos(entities)
     }
 
     override suspend fun searchRepos(
-        token: String,
         searchQuery: SearchQuery,
         ids: List<UUID>
     ): SearchData? {
         val response = gitHubApi.searchRepos(
-            token,
             searchQuery.page,
             prepareQuery(searchQuery.query),
             searchQuery.sort,
@@ -81,47 +62,60 @@ class DefaultGitHubRepository(
         }
     }
 
-    override suspend fun saveRepos(ids: List<UUID>, items: List<RepoData>) {
-        val entities = mapDataToEntity(ids, items)
-        database.getReposDao().insertRepos(entities)
-    }
-
     private fun prepareQuery(query: String): String {
         return "${query.replace(" ", "+")}+in:name"
     }
 
-    private fun mapEntityToItem(entities: List<RepoEntity>): List<RepoItem> {
-        return entities.map {
-            RepoItem(
-                itemId = UUID.fromString(it.id),
-                name = it.name,
-                description = it.description,
-                starsCount = it.starsCount,
-                repoUrl = it.repoUrl,
-                ownerName = it.ownerName,
-                ownerAvatarUrl = it.ownerAvatarUrl,
-                serverId = it.serverId
-            )
-        }
+    private fun List<RepoEntity>.mapToItem() = map {
+        RepoItem(
+            itemId = UUID.fromString(it.id),
+            name = it.name,
+            description = it.description,
+            starsCount = it.starsCount,
+            repoUrl = it.repoUrl,
+            ownerName = it.ownerName,
+            ownerAvatarUrl = it.ownerAvatarUrl,
+            serverId = it.serverId
+        )
     }
 
-    private fun mapDataToEntity(ids: List<UUID>, items: List<RepoData>): List<RepoEntity> {
-        return items.mapIndexed { index, repoData ->
-//                try {
-            RepoEntity(
-                id = ids[index].toString(),
-                name = repoData.name,
-                description = repoData.description,
-                starsCount = repoData.stargazers_count,
-                repoUrl = repoData.html_url,
-                ownerName = repoData.owner.login,
-                ownerAvatarUrl = repoData.owner.avatar_url,
-                serverId = repoData.id
-            )
-//                } catch (e: Exception) {
-//                    Timber.e(e)
-//                }
-        }
-
+    private fun List<RepoData>.mapToEntity(ids: List<UUID>) = mapIndexed { index, repoData ->
+        RepoEntity(
+            id = ids[index].toString(),
+            name = repoData.name,
+            description = repoData.description,
+            starsCount = repoData.stargazers_count,
+            repoUrl = repoData.html_url,
+            ownerName = repoData.owner.login,
+            ownerAvatarUrl = repoData.owner.avatar_url,
+            serverId = repoData.id
+        )
     }
+
+
+    private fun List<HistoryEntity>.mapToRepoItem() = map {
+        RepoItem(
+            itemId = UUID(it.serverId, it.serverId),
+            name = it.name,
+            description = it.description,
+            starsCount = it.starsCount,
+            repoUrl = it.repoUrl,
+            ownerName = it.ownerName,
+            ownerAvatarUrl = it.ownerAvatarUrl,
+            serverId = it.serverId,
+            viewedTimestamp = it.viewedTimestamp
+        )
+    }
+
+    private fun RepoItem.mapToHistoryEntity() = HistoryEntity(
+        serverId = serverId,
+        name = name,
+        description = description,
+        starsCount = starsCount,
+        repoUrl = repoUrl,
+        ownerName = ownerName,
+        ownerAvatarUrl = ownerAvatarUrl,
+        viewedTimestamp = viewedTimestamp
+    )
+
 }

@@ -3,14 +3,12 @@ package com.test.github.data.remote.network
 import com.test.github.domain.data.SearchData
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface GitHubApiService {
 
     @GET("/search/repositories")
     suspend fun searchRepos(
-        @Header("Authorization") oauthToken: String,
         @Query("page") page: Int,
         @Query("q", encoded = true) query: String,
         @Query("sort") sort: String,
@@ -19,7 +17,5 @@ interface GitHubApiService {
     ): Response<SearchData>
 
     @GET("/user")
-    suspend fun getUser(
-        @Header("Authorization") oauthToken: String
-    ): Response<Unit>
+    suspend fun getUser(): Response<Unit>
 }

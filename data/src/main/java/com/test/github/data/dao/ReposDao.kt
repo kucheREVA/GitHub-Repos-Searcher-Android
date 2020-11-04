@@ -27,7 +27,7 @@ abstract class ReposDao {
     abstract suspend fun deleteOldestViewed(): Int
 
     @Query("select * from history order by viewedTimestamp desc")
-    abstract fun getHistory(): List<HistoryEntity>
+    abstract fun getHistory(): Flow<List<HistoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun createOrUpdateHistoryRepo(item: HistoryEntity)

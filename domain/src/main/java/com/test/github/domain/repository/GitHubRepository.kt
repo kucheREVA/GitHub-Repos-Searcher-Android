@@ -11,12 +11,11 @@ interface GitHubRepository {
 
     suspend fun updateViewedTimestamp(item: RepoItem)
 
-    suspend fun getHistory(): List<RepoItem>
+    fun getHistory(): Flow<List<RepoItem>>
 
     suspend fun clearRepos(): Boolean
 
     suspend fun searchRepos(
-        token: String,
         searchQuery: SearchQuery,
         ids: List<UUID>
     ): SearchData?

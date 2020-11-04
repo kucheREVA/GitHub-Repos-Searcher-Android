@@ -4,7 +4,7 @@ import com.test.github.domain.model.AccountModel
 
 interface AccountRepository {
 
-    suspend fun getAuthToken(): String?
+    fun getAuthToken(): String?
 
     suspend fun updateAuthToken(accountModel: AccountModel): Boolean
 

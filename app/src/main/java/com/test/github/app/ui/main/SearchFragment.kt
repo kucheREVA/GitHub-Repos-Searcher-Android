@@ -23,6 +23,7 @@ import com.test.github.domain.model.Model
 import com.test.github.domain.model.ReposModel
 import com.test.github.domain.model.Result
 import com.test.github.domain.model.SearchModel
+import com.test.github.domain.usecase.SimpleResult
 import kotlinx.android.synthetic.main.search_fragment.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -97,29 +98,39 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
     private fun observeViewModel() {
         with(viewModel) {
             eventLiveData.observe(viewLifecycleOwner, Observer {
-                when (it) {
-                    is Result.Success -> validateSuccess(it.successData)
-                    is Result.Failure -> {
-                        showNoDataStub()
-                        it.errorData.run { Timber.e(this) }
-                        showError(it.errorData.message)
-                    }
-                    is Result.Loading -> addStubsToAdapter(it.loadingData as ReposModel)
-                    is Result.State.LOADING -> progress.show()
-                    is Result.State.LOADED -> progress.hide()
-                    is Result.State.EMPTY -> showNoDataStub { noReposFound() }
-                    is Result.State.COOL_DOWN_START -> coolDownStart()
-                    is Result.State.COOL_DOWN_RELEASED -> stopLoading()
-                    is Result.State.LIMIT_REACHED -> {
-                        adapter.removeStubs()
-                        MaterialAlertDialogBuilder(requireContext())
-                            .showMessageDialog(
-                                getString(R.string.search_no_more_repos_dialog_title),
-                                getString(R.string.search_no_more_repos_dialog_message)
-                            )
+                if (!it.hasBeenHandled) {
+                    if (it is Result.Success) {
+                        validateSuccess(it.successData)
+                    } else {
+                        it.hasBeenHandled = true
+                        handleSearchStates(it)
                     }
                 }
             })
+        }
+    }
+
+    private fun handleSearchStates(state: SimpleResult) {
+        when (state) {
+            is Result.Failure -> {
+                showNoDataStub()
+                state.errorData.run { Timber.e(this) }
+                showError(state.errorData.message)
+            }
+            is Result.Loading -> addStubsToAdapter(state.loadingData as ReposModel)
+            is Result.State.LOADING -> progress.show()
+            is Result.State.LOADED -> progress.hide()
+            is Result.State.EMPTY -> showNoDataStub { noReposFound() }
+            is Result.State.COOL_DOWN_START -> coolDownStart()
+            is Result.State.COOL_DOWN_RELEASED -> stopLoading()
+            is Result.State.LIMIT_REACHED -> {
+                adapter.removeStubs()
+                MaterialAlertDialogBuilder(requireContext())
+                    .showMessageDialog(
+                        getString(R.string.search_no_more_repos_dialog_title),
+                        getString(R.string.search_no_more_repos_dialog_message)
+                    )
+            }
         }
     }
 

@@ -8,7 +8,6 @@ import com.test.github.domain.model.ReposModel
 import com.test.github.domain.model.Result
 import com.test.github.domain.model.SearchModel
 import com.test.github.domain.model.SearchQuery
-import com.test.github.domain.repository.AccountRepository
 import com.test.github.domain.repository.GitHubRepository
 import com.test.github.domain.usecase.SimpleResult
 import com.test.github.domain.usecase.UseCase
@@ -17,42 +16,38 @@ import kotlinx.coroutines.flow.flow
 import java.util.*
 
 class SearchReposUseCase(
-    private val gitHubRepository: GitHubRepository,
-    private val accountRepository: AccountRepository
+    private val gitHubRepository: GitHubRepository
 ) : UseCase<SearchQuery>() {
 
-    override fun run(params: SearchQuery) = flow<SimpleResult> {
+    override fun run(params: SearchQuery) = flow {
         if (params.query.isBlank()) {
             emit(Result.State.EMPTY)
-            return@flow
-        }
-        val ids = generateIdsAsync()
-        emit(Result.Loading(ReposModel(prepareStubs(ids))))
-        val token = accountRepository.getAuthToken()
-        emit(token?.let {
-            val firstHalf = searchReposAsync(token, FIRST_HALF_INCREMENT, params) {
+        } else {
+            val ids = generateIdsAsync()
+            emit(Result.Loading(ReposModel(prepareStubs(ids))))
+
+            val firstHalf = searchReposAsync(FIRST_HALF_INCREMENT, params) {
                 ids.take(HALF_CAPACITY)
             }
 
-            val secondHalf = searchReposAsync(token, SECOND_HALF_INCREMENT, params) {
+            val secondHalf = searchReposAsync(SECOND_HALF_INCREMENT, params) {
                 ids.takeLast(HALF_CAPACITY)
             }
 
             val firstHalfResult = firstHalf.await()
             val secondHalfResult = secondHalf.await()
 
-            validateResult(firstHalfResult, secondHalfResult, ids, params.page)
-        } ?: Result.Failure(Error("Not valid token")))
+            emit(validateResult(firstHalfResult, secondHalfResult, ids, params.page))
+        }
     }
 
     private suspend fun searchReposAsync(
-        token: String,
         pageIncrement: Int,
         params: SearchQuery,
         action: () -> List<UUID>
     ) = async {
         val searchParams = params.copy(page = params.page + pageIncrement)
-        gitHubRepository.searchRepos(token, searchParams, action.invoke())
+        gitHubRepository.searchRepos(searchParams, action.invoke())
     }
 
     private suspend fun validateResult(
