@@ -1,5 +1,7 @@
 package com.test.github.domain.repository
 
+import com.test.github.domain.data.RepoData
+import com.test.github.domain.data.SearchData
 import com.test.github.domain.item.RepoItem
 import com.test.github.domain.model.SearchQuery
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +19,9 @@ interface GitHubRepository {
         token: String,
         searchQuery: SearchQuery,
         ids: List<UUID>
-    ): Int
+    ): SearchData?
 
     fun getRepos(): Flow<List<RepoItem>>
+
+    suspend fun saveRepos(ids: List<UUID>, items: List<RepoData>)
 }

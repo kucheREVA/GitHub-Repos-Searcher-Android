@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_nav_graph"
+    app:startDestination="@id/searchFragment">
+
+    <keep_state_fragment
+        android:id="@+id/searchFragment"
+        android:name="com.test.github.app.ui.main.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/search_fragment"/>
+    <keep_state_fragment
+        android:id="@+id/historyFragment"
+        android:name="com.test.github.app.ui.main.HistoryFragment"
+        android:label="HistoryFragment"
+        tools:layout="@layout/history_fragment"/>
+    <keep_state_fragment
+        android:id="@+id/accountFragment"
+        android:name="com.test.github.app.ui.main.AccountFragment"
+        android:label="AccountFragment"
+        tools:layout="@layout/account_fragment"/>
+</navigation>

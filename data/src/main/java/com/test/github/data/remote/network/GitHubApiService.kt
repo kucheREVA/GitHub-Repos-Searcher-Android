@@ -17,4 +17,9 @@ interface GitHubApiService {
         @Query("order") order: String,
         @Query("per_page") size: Int = 15
     ): Response<SearchData>
+
+    @GET("/user")
+    suspend fun getUser(
+        @Header("Authorization") oauthToken: String
+    ): Response<Unit>
 }

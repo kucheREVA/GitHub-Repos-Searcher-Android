@@ -10,10 +10,10 @@ data class HistoryEntity(
     @PrimaryKey
     val serverId: Long,
     val name: String,
-    val description: String,
+    val description: String?,
     val starsCount: Int,
     val repoUrl: String,
-    val ownerAvatarUrl: String,
+    val ownerAvatarUrl: String?,
     val ownerName: String,
     val viewedTimestamp: Long
 )

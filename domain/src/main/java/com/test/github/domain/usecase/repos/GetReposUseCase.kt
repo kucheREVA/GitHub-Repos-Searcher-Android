@@ -22,7 +22,6 @@ class GetReposUseCase(
     override fun run(params: Unit): Flow<SimpleResult> {
         return gitHubRepository.getRepos()
             .drop(FIRST)
-            .flowOn(Dispatchers.Default)
             .map {
                 if (it.isNotEmpty()) {
                     Result.Success(ReposModel(it))

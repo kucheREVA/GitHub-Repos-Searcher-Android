@@ -30,11 +30,6 @@ abstract class UseCase<in Params> : CoroutineScope, KoinComponent {
     operator fun invoke(params: Params): Flow<SimpleResult> = run(params)
         .onStart { onStart(params)?.let { emit(it) } }
         .flowOn(backgroundDispatcher)
-        .catch {
-            try {
-            } catch (e: Exception) {
-                emit(Result.Failure(e))
-            }
-        }
+        .catch { e -> emit(Result.Failure(e)) }
 
 }

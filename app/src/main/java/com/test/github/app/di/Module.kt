@@ -3,14 +3,13 @@ package com.test.github.app.di
 import android.accounts.AbstractAccountAuthenticator
 import android.accounts.AccountManager
 import android.content.Context
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.test.github.app.BuildConfig
 import com.test.github.app.ui.login.LoginViewModel
 import com.test.github.app.ui.login.SplashViewModel
 import com.test.github.app.ui.main.HistoryViewModel
-import com.test.github.app.ui.main.MainViewModel
+import com.test.github.app.ui.main.SearchViewModel
 import com.test.github.data.account.AccountAuthenticator
 import com.test.github.data.database.AppDatabase
 import com.test.github.data.remote.network.GitHubApiService
@@ -42,10 +41,7 @@ import java.security.KeyStore
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
-import javax.net.ssl.TrustManager
-import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.*
 
 val viewModelModules = module {
     viewModel { LoginViewModel(get(named(CreateAccountUseCase::class.java.simpleName))) }
@@ -57,7 +53,7 @@ val viewModelModules = module {
         )
     }
     viewModel {
-        MainViewModel(
+        SearchViewModel(
             get(named(GetReposUseCase::class.java.simpleName)),
             get(named(SearchReposUseCase::class.java.simpleName)),
             get(named(UpdateHistoryUseCase::class.java.simpleName)),
@@ -140,11 +136,11 @@ val networkModule = module {
         loggerInterceptor: HttpLoggingInterceptor
     ): OkHttpClient = OkHttpClient()
         .newBuilder()
-        .sslSocketFactory(sslSocketFactory, trustManagers[0] as javax.net.ssl.X509TrustManager)
+        .sslSocketFactory(sslSocketFactory, trustManagers[0] as X509TrustManager)
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS)
         .writeTimeout(15, TimeUnit.SECONDS)
-//        .addInterceptor(loggerInterceptor)
+        .addInterceptor(loggerInterceptor)
         .build()
 
     fun provideRetrofit(baseUrl: String, client: OkHttpClient): Retrofit =

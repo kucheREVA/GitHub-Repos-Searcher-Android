@@ -11,45 +11,63 @@
         android:theme="@style/Theme.MaterialComponents.NoActionBar"
         app:elevation="0dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/appBarSearch"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="#fff"
+            app:layout_collapseMode="pin"
+            app:layout_scrollFlags="scroll|enterAlways">
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/appBarHistory"
-                style="@style/Widget.MaterialComponents.Toolbar.Primary"
-                android:layout_width="0dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchLayout"
+                style="@style/Rounded"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:minHeight="68dp"
-                android:background="#fff"
-                android:paddingTop="12dp"
-                app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                app:titleTextColor="@color/colorPrimary"
-                app:layout_collapseMode="pin"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:title="@string/history_title" />
+                android:focusableInTouchMode="true"
+                android:textColorHint="@color/colorPrimaryDark"
+                app:endIconDrawable="@drawable/ic_clear"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/colorPrimary"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false"
+                tools:visibility="visible">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr‌​stuvwxyz0123456789_-\u0020"
+                    android:hint="@string/search_screen_hint_content"
+                    android:drawableStart="@drawable/ic_github"
+                    android:drawablePadding="8dp"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColorHint="@color/colorPlaceholder"
+                    android:textColor="@color/colorPrimary"
+                    android:textCursorDrawable="@drawable/bg_cursor"
+                    android:textSize="18sp" />
 
+            </com.google.android.material.textfield.TextInputLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/historyLayout"
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         tools:context=".ui.main.SearchFragment">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imgHistoryStub"
+            android:id="@+id/imgStub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            app:layout_constraintBottom_toTopOf="@id/txtHistoryStub"
+            app:layout_constraintBottom_toTopOf="@id/txtStub"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -58,39 +76,39 @@
             app:srcCompat="@drawable/no_data" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/txtHistoryStub"
+            android:id="@+id/txtStub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/history_screen_stub_content"
+            android:text="@string/search_screen_stub_content"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imgHistoryStub" />
+            app:layout_constraintTop_toBottomOf="@id/imgStub" />
 
         <androidx.constraintlayout.widget.Group
-            android:id="@+id/historyStub"
+            android:id="@+id/stub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="imgHistoryStub, txtHistoryStub" />
+            app:constraint_referenced_ids="imgStub, txtStub" />
 
         <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progressHistory"
+            android:id="@+id/progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lstHistory"
+        android:id="@+id/lstRepos"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -99,6 +117,13 @@
         android:overScrollMode="never"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone"
         tools:listitem="@layout/item_repo" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+

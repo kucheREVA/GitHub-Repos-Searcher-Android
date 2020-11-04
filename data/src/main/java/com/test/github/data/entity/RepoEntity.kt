@@ -9,10 +9,10 @@ data class RepoEntity(
     @PrimaryKey
     val id: String,
     val name: String,
-    val description: String,
+    val description: String?,
     val starsCount: Int,
     val repoUrl: String,
-    val ownerAvatarUrl: String,
+    val ownerAvatarUrl: String?,
     val ownerName: String,
     val serverId: Long
 )

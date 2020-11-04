@@ -5,15 +5,20 @@
     <string name="dialog_error_messge">Please try again later.</string>
     <string name="dialog_btn_ok">OK</string>
     <string name="splash_login_btn_content">Sign in via GitHub</string>
-    <string name="search_screen_stub_content">Type repo name to search bar\nto start search</string>
+    <string name="search_screen_stub_content">Type repo name in search bar\nto start search</string>
     <string name="history_screen_stub_content">You haven\'t viewed a single repo!</string>
     <string name="history_title">History</string>
+    <string name="account_title">Account</string>
     <string name="nav_search">Search</string>
     <string name="nav_history">History</string>
+    <string name="nav_account">Account</string>
     <string name="app_bar_search_menu_title">Search</string>
     <string name="search_hint">Repositories here...</string>
     <string name="app_label">GitHub Search Repos</string>
-    <string name="search_screen_hint_content">Search repositories here:</string>
-    <string name="search_screen_no_repos_found_toast">No repos found, try another search name</string>
+    <string name="search_screen_hint_content">Search repos...</string>
+    <string name="search_screen_no_repos_found_toast">No repos found, try another search params</string>
+    <string name="search_fragment_error_limit_reached">You have reached the limit. Try again later.</string>
+    <string name="search_no_more_repos_dialog_title">No more repos</string>
+    <string name="search_no_more_repos_dialog_message">Seems like you received all repos with current search params.</string>
 
 </resources>

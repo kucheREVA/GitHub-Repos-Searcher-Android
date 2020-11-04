@@ -1,20 +1,20 @@
 package com.test.github.app.ui.main
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.test.github.app.R
+import com.test.github.app.ui.utils.hideKeyboard
 import com.test.github.app.ui.utils.showErrorDialog
+import com.test.github.app.ui.utils.showMessageDialog
 import com.test.github.app.ui.utils.textInputAsFlow
 import com.test.github.app.ui.widget.PaginationScrollListener
 import com.test.github.app.ui.widget.ReposAdapter
@@ -23,18 +23,19 @@ import com.test.github.domain.model.Model
 import com.test.github.domain.model.ReposModel
 import com.test.github.domain.model.Result
 import com.test.github.domain.model.SearchModel
-import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.android.synthetic.main.search_fragment.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-class MainFragment : Fragment(R.layout.main_fragment) {
+class SearchFragment : Fragment(R.layout.search_fragment) {
 
-    private val viewModel: MainViewModel by viewModel()
+    private val viewModel: SearchViewModel by viewModel()
 
     private val adapter = ReposAdapter {
         when (it) {
@@ -43,12 +44,6 @@ class MainFragment : Fragment(R.layout.main_fragment) {
     }
 
     private var isLoading = false
-    private var currentPage = 0
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        (requireActivity() as? AppCompatActivity)?.setSupportActionBar(appBarSearch)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -72,15 +67,25 @@ class MainFragment : Fragment(R.layout.main_fragment) {
             }
 
         })
-        menuHistory.setOnClickListener {
-            findNavController().navigate(MainFragmentDirections.actionMainFragmentToHistoryFragment())
+
+        etSearch.setOnEditorActionListener { textView, actionId, keyEvent ->
+            return@setOnEditorActionListener when (actionId) {
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    viewModel.clearRepos()
+                    viewModel.offerNewRepos(textView.text.toString())
+                    true
+                }
+                else -> false
+            }
         }
+
         etSearch.textInputAsFlow()
             .drop(1)
-            .debounce(1_000)
+            .filter { it.isNullOrBlank() }
             .mapLatest { it.toString() }
-            .onEach { viewModel.clearRepos(); currentPage = 0 }
-            .onEach { viewModel.offerNewRepos(it, currentPage) }
+            .onEach { viewModel.clearRepos() }
+            .onEach { viewModel.offerNewRepos(it) }
+            .onEach { }
             .launchIn(lifecycleScope)
     }
 
@@ -94,11 +99,25 @@ class MainFragment : Fragment(R.layout.main_fragment) {
             eventLiveData.observe(viewLifecycleOwner, Observer {
                 when (it) {
                     is Result.Success -> validateSuccess(it.successData)
-                    is Result.Failure -> showError(it.errorData)
+                    is Result.Failure -> {
+                        showNoDataStub()
+                        it.errorData.run { Timber.e(this) }
+                        showError(it.errorData.message)
+                    }
                     is Result.Loading -> addStubsToAdapter(it.loadingData as ReposModel)
                     is Result.State.LOADING -> progress.show()
                     is Result.State.LOADED -> progress.hide()
-                    is Result.State.EMPTY -> showStub { noReposFound() }
+                    is Result.State.EMPTY -> showNoDataStub { noReposFound() }
+                    is Result.State.COOL_DOWN_START -> coolDownStart()
+                    is Result.State.COOL_DOWN_RELEASED -> stopLoading()
+                    is Result.State.LIMIT_REACHED -> {
+                        adapter.removeStubs()
+                        MaterialAlertDialogBuilder(requireContext())
+                            .showMessageDialog(
+                                getString(R.string.search_no_more_repos_dialog_title),
+                                getString(R.string.search_no_more_repos_dialog_message)
+                            )
+                    }
                 }
             })
         }
@@ -106,14 +125,14 @@ class MainFragment : Fragment(R.layout.main_fragment) {
 
     private fun loadNextPage(query: String) {
         lifecycleScope.launch {
-            viewModel.offerNewRepos(query, currentPage)
+            viewModel.offerNewRepos(query)
         }
     }
 
     private fun validateSuccess(model: Model) {
         when (model) {
             is ReposModel -> updateList(model)
-            is SearchModel -> currentPage = model.page
+            is SearchModel -> viewModel.updateCurrentPage(model.page)
         }
     }
 
@@ -126,23 +145,32 @@ class MainFragment : Fragment(R.layout.main_fragment) {
     }
 
     private fun updateList(result: ReposModel) {
-        isLoading = false
+        stopLoading()
         stub.visibility = View.GONE
         lstRepos.visibility = View.VISIBLE
-        progress.hide()
+
+        if (etSearch.isFocused) {
+            etSearch.hideKeyboard()
+            etSearch.clearFocus()
+        }
 
         adapter.setData(result.repos)
     }
 
-    private fun showStub(action: () -> Unit? = {}) {
+    private fun showNoDataStub(action: () -> Unit? = {}) {
         stub.visibility = View.VISIBLE
         lstRepos.visibility = View.GONE
         adapter.clearData()
         action()
     }
 
+    private fun removeStubs() {
+        stopLoading()
+        adapter.removeStubs()
+    }
+
     private fun noReposFound() {
-        progress.hide()
+        stopLoading()
         Toast.makeText(
             requireContext(),
             R.string.search_screen_no_repos_found_toast,
@@ -157,11 +185,21 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         }
     }
 
-    private fun showError(exception: Throwable?, onDismiss: () -> Unit? = {}) {
+    private fun coolDownStart() {
+        viewModel.countDownDelay()
+        removeStubs()
+        showError(getString(R.string.search_fragment_error_limit_reached))
+    }
+
+    private fun stopLoading() {
         progress.hide()
-        showStub()
+        isLoading = false
+    }
+
+    private fun showError(message: String?, onDismiss: () -> Unit? = {}) {
+        stopLoading()
         MaterialAlertDialogBuilder(requireContext())
             .setOnDismissListener { onDismiss() }
-            .showErrorDialog(exception)
+            .showErrorDialog(message)
     }
 }

@@ -2,6 +2,7 @@ package com.test.github.app.ui.login
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +51,7 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
                 when (it) {
                     is Result.State.UNAUTHORIZED -> showSignInButton()
                     is Result.Success -> goToMain()
-                    is Result.Failure -> showError(it.errorData)
+                    is Result.Failure -> showError(it.errorData.message)
                 }
             })
         }
@@ -59,14 +60,16 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
                 when (it) {
                     is Result.Success -> goToMain()
                     is Result.State.UNAUTHORIZED -> showSignInButton()
-                    is Result.Failure -> showError(it.errorData) { requireActivity().finish() }
+                    is Result.Failure -> showError(it.errorData.message) {
+                        requireActivity().finish()
+                    }
                 }
             })
         }
     }
 
     private fun goToMain() {
-        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToNavBarGraph())
+        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToNavBarFragment())
     }
 
     private fun showSignInButton() {
@@ -80,7 +83,7 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
         progressLogin.show()
         FirebaseAuth.getInstance().pendingAuthResult?.run {
             addOnSuccessListener { loginViewModel.onAuthSuccess(it) }
-            addOnFailureListener { showError(it) }
+            addOnFailureListener { showError(it.message) }
         } ?: startSignInActivity()
     }
 
@@ -90,15 +93,15 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
             .startActivityForSignInWithProvider(requireActivity(), provider.build())
             .apply {
                 addOnSuccessListener { loginViewModel.onAuthSuccess(it) }
-                addOnFailureListener { showError(it) }
+                addOnFailureListener { showError(it.message) }
             }
     }
 
-    private fun showError(exception: Throwable?, onDismiss: () -> Unit? = {}) {
+    private fun showError(message: String?, onDismiss: () -> Unit? = {}) {
         btnSignIn.isEnabled = false
         progressLogin.hide()
         MaterialAlertDialogBuilder(requireContext())
             .setOnDismissListener { onDismiss() }
-            .showErrorDialog(exception)
+            .showErrorDialog(message)
     }
 }

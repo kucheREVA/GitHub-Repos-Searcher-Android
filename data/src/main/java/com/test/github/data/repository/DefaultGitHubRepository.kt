@@ -4,6 +4,7 @@ import com.test.github.data.database.AppDatabase
 import com.test.github.data.entity.HistoryEntity
 import com.test.github.data.entity.RepoEntity
 import com.test.github.data.remote.network.GitHubApiService
+import com.test.github.domain.data.RepoData
 import com.test.github.domain.data.SearchData
 import com.test.github.domain.item.RepoItem
 import com.test.github.domain.model.SearchQuery
@@ -64,7 +65,7 @@ class DefaultGitHubRepository(
         token: String,
         searchQuery: SearchQuery,
         ids: List<UUID>
-    ): Int {
+    ): SearchData? {
         val response = gitHubApi.searchRepos(
             token,
             searchQuery.page,
@@ -74,21 +75,19 @@ class DefaultGitHubRepository(
         )
 
         return if (response.isSuccessful) {
-            val data = response.body()
-            saveToMemory(ids, data).size
+            response.body()
         } else {
-            -1
+            null
         }
+    }
+
+    override suspend fun saveRepos(ids: List<UUID>, items: List<RepoData>) {
+        val entities = mapDataToEntity(ids, items)
+        database.getReposDao().insertRepos(entities)
     }
 
     private fun prepareQuery(query: String): String {
         return "${query.replace(" ", "+")}+in:name"
-    }
-
-    private suspend fun saveToMemory(ids: List<UUID>, data: SearchData?): List<Long> {
-        return data?.let {
-            database.getReposDao().insertRepos(mapDataToEntity(ids, it))
-        } ?: emptyList()
     }
 
     private fun mapEntityToItem(entities: List<RepoEntity>): List<RepoItem> {
@@ -106,8 +105,9 @@ class DefaultGitHubRepository(
         }
     }
 
-    private fun mapDataToEntity(ids: List<UUID>, data: SearchData): List<RepoEntity> {
-        return data.items.mapIndexed { index, repoData ->
+    private fun mapDataToEntity(ids: List<UUID>, items: List<RepoData>): List<RepoEntity> {
+        return items.mapIndexed { index, repoData ->
+//                try {
             RepoEntity(
                 id = ids[index].toString(),
                 name = repoData.name,
@@ -118,6 +118,10 @@ class DefaultGitHubRepository(
                 ownerAvatarUrl = repoData.owner.avatar_url,
                 serverId = repoData.id
             )
+//                } catch (e: Exception) {
+//                    Timber.e(e)
+//                }
         }
+
     }
 }
